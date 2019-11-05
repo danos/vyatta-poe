@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2018, AT&T Intellectual Property.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+import os
+import sys
+import vplaned
+from vyatta import configd
+
+name = sys.argv.pop()
+client = configd.Client()
+
+enabled = client.node_exists( client.AUTO,
+                              "interfaces dataplane {} poe enable".format(name))
+
+with vplaned.Controller() as controller:
+    path = 'poe enable {}'.format(name)
+    if enabled:
+        controller.store(path,
+                         "poe enable {}".format(name),
+                         action="SET")
+    else:
+        controller.store(path,
+                         "poe disable {}".format(name),
+                         action="DELETE")

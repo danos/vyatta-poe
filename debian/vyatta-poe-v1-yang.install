@@ -1,0 +1,3 @@
+yang/vyatta-poe-v1.yang usr/share/configd/yang
+scripts/vyatta-poe-state opt/vyatta/sbin
+scripts/vyatta-poe opt/vyatta/sbin

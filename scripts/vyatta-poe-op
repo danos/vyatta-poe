@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2018, AT&T Intellectual Property.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+import os
+import sys
+import json
+
+from vyatta import configd
+
+def getValue(key, port):
+    if key in port:
+        return port[key]
+    return "-"
+
+def getOnOff(key, port):
+    if key in port:
+        if port[key]:
+            return "on"
+        else:
+            return "off"
+    return "-"
+
+client = configd.Client()
+
+try:
+    tree = client.tree_get_full_dict('system poe-power-state')
+    for pse in tree['poe-power-state']['pses']:
+        print("Name:", pse['name'])
+        if 'total-power' in pse:
+            print("Total Max power (watts):", pse['total-power'])
+        if 'consumed-power' in pse:
+            print("Total Max used (watts):", pse['consumed-power'])
+        if 'available-power' in pse:
+            print("Total max available (watts):", pse['available-power'])
+        print()
+except:
+    pass
+
+try:
+    tree = client.tree_get_full_dict('interfaces poe-ports-state')
+    print("Interface        Enabled Status Power Class  Consumption (W) Available (W)");
+    print("---------------- ------- ------ ------------ -----------     ---------");
+
+    for port in tree['poe-ports-state']['ports']:
+        name = port['name']
+        admin_status = getOnOff('admin-status', port)
+        oper_status = getOnOff('oper-status', port)
+        power_class = getValue('class', port)
+        consumed_power = getValue('consumed-power', port)
+        available_power = getValue('available-power', port)
+        print("%-16s %-7s %-6s %-12s %11s     %9s" %
+                (name, admin_status, oper_status, power_class, consumed_power, available_power))
+    print()
+except:
+    pass

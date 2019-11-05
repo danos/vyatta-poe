@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2018, AT&T Intellectual Property.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+
+import json
+import sys
+import vplaned
+
+def ports_state():
+    all_ports = []
+    with vplaned.Controller() as controller:
+        for dp in controller.get_dataplanes():
+            with dp:
+                poe_status = dp.json_command("poe status")
+                all_ports = all_ports + poe_status['poe-status']
+
+    print(json.dumps({'ports': all_ports }))
+    return
+
+def system_state():
+    pses = []
+
+    # No hardware support at this time
+
+    print(json.dumps({'pses': pses}))
+    return
+
+def usage():
+    print("usage: vyatta-poe-state [--ports|--system]")
+    sys.exit(1)
+
+if len(sys.argv) < 2:
+    usage()
+elif sys.argv[1] == '--ports':
+    ports_state()
+elif sys.argv[1] == '--system':
+    system_state()
+else:
+    usage()
+
+sys.exit(0)

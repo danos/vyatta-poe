@@ -1,0 +1,205 @@
+module vyatta-poe-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-poe:1";
+	prefix vyatta-poe-v1;
+
+	import configd-v1 {
+		prefix configd;
+	}
+
+	import vyatta-interfaces-v1 {
+		prefix if;
+	}
+
+	import vyatta-system-v1 {
+		prefix sys;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+			 Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		   1. Redistributions of source code must retain the above copyright
+		      notice, this list of conditions and the following disclaimer.
+		   2. Redistributions in binary form must reproduce the above
+		      copyright notice, this list of conditions and the following
+		      disclaimer in the documentation and/or other materials provided
+		      with the distribution.
+		   3. Neither the name of the copyright holder nor the names of its
+		      contributors may be used to endorse or promote products derived
+		      from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-poe-v1.
+		 This module provides support for Power over Ethernet configuration.";
+
+	revision 2018-04-24 {
+		description "Initial revision";
+	}
+
+	grouping poe-ports-config {
+		container poe {
+			configd:help "PoE configuration for this port";
+			description "Power over Ethernet (PoE) configuration for this port.";
+			configd:end "vyatta-poe $VAR(../@)";
+
+			leaf enable {
+				type empty;
+				description "Enable Power over Ethernet (PoE) on this port.";
+				configd:help "Enable POE";
+			}
+		}
+	}
+
+	typedef power-classification {
+		type enumeration {
+
+			// Type 1 devices, IEEE 802.3af
+
+			enum Type1-Class0 {
+				description "12.95 watts";
+			}
+			enum Type1-Class1 {
+				description "3.84 watts";
+			}
+			enum Type1-Class2 {
+				description "6.49 watts";
+			}
+			enum Type1-Class3 {
+				description "12.95 watts";
+			}
+
+			// Type 2 devices, IEEE 802.3at
+
+			enum Type2-Class0 {
+				description "12.95 watts";
+			}
+			enum Type2-Class1 {
+				description "3.84 watts";
+			}
+			enum Type2-Class2 {
+				description "6.49 watts";
+			}
+			enum Type2-Class3 {
+				description "12.95 watts";
+			}
+			enum Type2-Class4 {
+				description "25.5 watts";
+			}
+		}
+	}
+
+	grouping poe-port-state {
+		leaf admin-status {
+			type boolean;
+			description "Administrative status of PoE on this port.  If true, PoE is enabled on this port.";
+		}
+
+		leaf available-power {
+			type decimal64 {
+				fraction-digits 4;
+			}
+			units 'watt';
+			description "Remaining power available in watts";
+		}
+
+		leaf class {
+			description "Type and power class of the attached PoE device.";
+			type power-classification;
+		}
+
+		leaf consumed-power {
+			type decimal64 {
+				fraction-digits 4;
+			}
+			units 'watt';
+			description "Measured power usage in watts on this port.";
+		}
+
+		leaf oper-status {
+			type boolean;
+			description "Operational status of PoE on this port.  If true, this port is currently providing power.";
+		}
+	}
+
+	augment /if:interfaces {
+		container poe-ports-state {
+			config false;
+			configd:get-state "vyatta-poe-state --ports";
+			description "Operational state for PoE ports";
+
+			list ports {
+				key name;
+				leaf name {
+					description "Interface name associated with this PoE port";
+					type string;
+				}
+				uses poe-port-state;
+			}
+		}
+	}
+
+	augment /sys:system {
+		container poe-power-state {
+			config false;
+			configd:get-state "vyatta-poe-state --system";
+			description "Operational state for the PoE power sourcing equipment (PSE).";
+
+			list pses {
+				key name;
+				leaf name {
+					description "Name associated with this power sourcing equipment";
+					type string;
+				}
+
+				leaf total-power {
+					type decimal64 {
+						fraction-digits 4;
+					}
+					units 'watt';
+					description "The nominal power expressed in watts";
+				}
+
+				leaf consumed-power {
+					type decimal64 {
+						fraction-digits 4;
+					}
+					units 'watt';
+					description "Measured power usage in watts";
+				}
+
+				leaf available-power {
+					type decimal64 {
+						fraction-digits 4;
+					}
+					units 'watt';
+					description "Remaining power available in watts";
+				}
+			}
+		}
+	}
+}

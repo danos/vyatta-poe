@@ -1,0 +1,37 @@
+Source: vyatta-poe
+Section: contrib/net
+Priority: optional
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               dh-yang,
+               python3,
+Standards-Version: 3.9.8
+
+Package: vyatta-poe
+Architecture: all
+Depends: python3,
+	 python3-vyatta-cfgclient,
+	 ${python3:Depends},
+	 ${misc:Depends}
+Description: Vyatta PoE integration
+ Provides scripts and files necessary to configure PoE with the
+ Vyatta configuration system.
+
+Package: vyatta-poe-v1-yang
+Architecture: all
+Depends: vyatta-poe,
+	 python3,
+	 python3-vyatta-cfgclient,
+	 python3-vplaned,
+	 ${python3:Depends},
+	 ${misc:Depends},
+	 ${yang:Depends}
+Description: vyatta-poe-v1 module
+ Base PoE YANG configuration
+
+Package: vyatta-interfaces-dataplane-poe-v1-yang
+Architecture: all
+Depends: vyatta-poe, ${misc:Depends}, ${yang:Depends}
+Description: vyatta-interfaces-dataplane-poe-v1 module
+ PoE YANG support for dataplane interfaces
