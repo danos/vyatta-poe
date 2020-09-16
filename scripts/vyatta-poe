@@ -21,8 +21,10 @@ with vplaned.Controller() as controller:
     if enabled:
         controller.store(path,
                          "poe enable {}".format(name),
+                         interface="{}".format(name),
                          action="SET")
     else:
         controller.store(path,
                          "poe disable {}".format(name),
+                         interface="{}".format(name),
                          action="DELETE")
