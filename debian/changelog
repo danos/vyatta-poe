@@ -1,3 +1,12 @@
+vyatta-poe (0.3) unstable; urgency=medium
+
+  [ Paul Atkins ]
+  * set the interface hint when configuring poe on interface
+
+  [ Charles (Chas) Williams ]
+
+ -- Charles (Chas) Williams <ciwillia@vyatta.att-mail.com>  Tue, 06 Oct 2020 09:55:01 -0400
+
 vyatta-poe (0.2) unstable; urgency=medium
 
   * DANOS Import master
